@@ -14,9 +14,8 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::redirect('/','categories');
-
-Route::middleware(['auth:sanctum', 'verified'])->group(function(){
+Route::view('/unauthorize','nopermission');
+Route::middleware(['auth:sanctum','ensureIsAdmin','verified'])->group(function(){
     Route::redirect('/','categories');
     Route::resources([
         'categories' => CategoryController::class,
