@@ -17,34 +17,35 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/creatByUid', function (Request $request) {
+Route::post('/createByUid', function (Request $request) {
     $request->validate([
         'uid' => 'required',
-        'email'=>'required|unique:users',
+        'email'=>'required|email',
         'phone'=>'nullable',
         'name'=>'required'
     ]);
     $user = User::where('uid', $request->uid)->first();
-    if (! $user) {
-        $newUser = new User(['name'=>$request->name,'email'=>$request->email,'password'=>'mobile','phone'=>$request->phone]);
+    if (!$user) {
+        $newUser = new User(['name'=>$request->name,'uid'=>$request->uid,'email'=>$request->email,'password'=>'mobile','phone'=>$request->phone]);
         if($newUser->save()){
-            $result = ["message"=>"User created successfully."];
+            $result = ["status"=>true,"message"=>"User created successfully.","token"=>$newUser->createToken($request->uid)->plainTextToken,"data"=>$newUser];
             return json_encode($result);
         }else{
-            $result = ["message"=>"User created fail."];
+            $result = ["status"=>false,"message"=>"User creation fail.","token"=>"","data"=>[]];
             return json_encode($result);
         }
     }
-    return $user->createToken($request->device_name)->plainTextToken;
+    $result = ["status"=>true,"message"=>"Token created.","token"=>$user->createToken($request->uid)->plainTextToken,"data"=>$user];
+    return json_encode($result);
 });
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        return $request->user()->toJson();
     });
     Route::get('/categories',function(Request $request){
-        return Category::all();
+        return Category::all()->toJson();
     });
     Route::get('/books',function(Request $request){
-        return Book::all();
+        return Book::all()->toJson();
     })->middleware('auth:sanctum');    
 });

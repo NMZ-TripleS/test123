@@ -15,8 +15,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::view('/unauthorize','nopermission');
+Route::redirect('dashboard','categories');
+Route::redirect('/','categories');
 Route::middleware(['auth:sanctum','ensureIsAdmin','verified'])->group(function(){
-    Route::redirect('/','categories');
     Route::resources([
         'categories' => CategoryController::class,
         'books'=>BookController::class
